@@ -24,7 +24,8 @@ class StateRepoImp (
 
         return when (response.status.value) {
             in 200..299 -> {
-                val body = response.body<List<States>>()
+                val body: List<States> = response.body()
+                println("Response: ${body}")
                 Result.Success(body)
             }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)

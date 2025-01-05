@@ -30,10 +30,13 @@ class StateViewmodel(
               result.onSuccess {
                   states->
                   _uiState.update { UIState.Success(states) }
-              }.onError {
-                  _uiState.update { UIState.Error(it.toString()) }
+              }.onError { networkError ->
+                  println("Unexpected error this ${networkError.name}")
+                  _uiState.update { UIState.Error(networkError.name) }
               }
           } catch (e: Exception) {
+              println("Error: ${e.message}")
+              e.printStackTrace()
               _uiState.update { UIState.Error(it.toString()) }
           }
       }
