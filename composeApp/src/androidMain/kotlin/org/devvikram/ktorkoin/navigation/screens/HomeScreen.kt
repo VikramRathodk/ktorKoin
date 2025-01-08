@@ -1,6 +1,12 @@
 package org.devvikram.ktorkoin.navigation.screens
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
@@ -20,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenuItem
@@ -28,6 +35,7 @@ import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,11 +51,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.devvikram.ktorkoin.permissions.AndroidLocationPermission
 import org.devvikram.ktorkoin.presentation.viewmodels.StateViewmodel
 import org.devvikram.ktorkoin.presentation.viewmodels.UIState
 
 @Composable
-fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel) {
+fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel,
+               navigateToCanvaScreen: () -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var stateList by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -55,8 +65,8 @@ fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel) {
 
     Column (
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ){
         Text(text = "Home Screen")
         Button(
@@ -64,6 +74,15 @@ fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel) {
         ) {
             Text(text = "Get States")
         }
+
+        Button(
+            onClick = navigateToCanvaScreen
+        ) {
+            Text(text = "Navigate to Canvas")
+        }
+
+        LocationPermissionHandler()
+
         when (uiState) {
             is UIState.Loading -> {
                 CircularProgressIndicator()
@@ -98,6 +117,78 @@ fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel) {
 
 
 }
+@Composable
+fun LocationPermissionHandler() {
+    val status = remember { mutableStateOf("Idle") }
+    val context = LocalContext.current
+    val showDialog = remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        status.value = if (isGranted) "Permission Granted" else "Permission Denied"
+    }
+
+    Button(onClick = {
+        val locationPermission = AndroidLocationPermission(context, launcher)
+
+        when {
+            locationPermission.hasLocationPermission() -> {
+                status.value = "Permission Already Granted"
+            }
+            locationPermission.shouldShowRationale() -> {
+                showDialog.value = true
+            }
+            else -> {
+                locationPermission.requestLocationPermission { isGranted ->
+                    status.value = if (isGranted) "Permission Granted" else "Permission Denied"
+                }
+            }
+        }
+    }) {
+        Text(text = "Get Location")
+    }
+
+    Text(text = status.value)
+
+    if (showDialog.value) {
+        PermissionRationaleDialog(
+            onDismiss = { showDialog.value = false },
+            onOpenSettings = {
+                openAppSettings(context)
+                showDialog.value = false
+            }
+        )
+    }
+}
+
+@Composable
+fun PermissionRationaleDialog(onDismiss: () -> Unit, onOpenSettings: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text(text = "Location Permission Needed") },
+        text = { Text(text = "Location Permission is mandatory. Please grant the permission in settings.") },
+        confirmButton = {
+            TextButton(onClick = onOpenSettings) {
+                Text(text = "Open Settings")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = "Cancel")
+            }
+        }
+    )
+}
+
+fun openAppSettings(context: Context) {
+    val intent = Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", context.packageName, null)
+    )
+    context.startActivity(intent)
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun StateSpinner(
@@ -167,12 +258,6 @@ fun StateSpinner(
                 .background(Color.Yellow)
                 .clickable { expanded = !expanded }
         )
-
-
-
-
-
-
 
 
 

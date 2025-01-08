@@ -8,4 +8,7 @@ sealed class Destination {
 
     @Serializable
     data object Home : Destination()
+
+    @Serializable
+    data object CanvasD : Destination()
 }
