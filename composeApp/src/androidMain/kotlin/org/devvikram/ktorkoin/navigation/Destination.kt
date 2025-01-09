@@ -11,4 +11,8 @@ sealed class Destination {
 
     @Serializable
     data object CanvasD : Destination()
+
+    @Serializable
+    data object User : Destination()
+
 }

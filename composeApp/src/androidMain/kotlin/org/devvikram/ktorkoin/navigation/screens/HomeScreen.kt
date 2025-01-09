@@ -57,7 +57,8 @@ import org.devvikram.ktorkoin.presentation.viewmodels.UIState
 
 @Composable
 fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel,
-               navigateToCanvaScreen: () -> Unit = {}) {
+               navigateToCanvaScreen: () -> Unit = {},
+               navigateToUserScreen: () -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var stateList by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -74,6 +75,13 @@ fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel,
         ) {
             Text(text = "Get States")
         }
+
+        Button(
+            onClick = navigateToUserScreen
+        ) {
+            Text(text = "Navigate to User Screen")
+        }
+
 
         Button(
             onClick = navigateToCanvaScreen

@@ -5,14 +5,17 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.sqldelight)
+
 
 }
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
         }
     }
 
@@ -26,6 +29,14 @@ kotlin {
             isStatic = true
         }
     }
+    sqldelight{
+        databases{
+            create("ktor_koin_db"){
+                packageName.set("org.devvikram.ktorkoin.shared")
+            }
+        }
+    }
+
 
     sourceSets {
         androidMain.dependencies {
@@ -33,17 +44,20 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.android)
+            implementation(libs.android.driver)
 
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.native.driver)
         }
         commonMain.dependencies {
             implementation(libs.bundles.ktor)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
-
+            implementation(libs.runtime)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
         }
