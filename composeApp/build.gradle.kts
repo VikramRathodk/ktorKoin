@@ -25,6 +25,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.androidx.compose)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

@@ -1,5 +1,6 @@
 package org.devvikram.ktorkoin.navigation
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 
@@ -14,5 +15,10 @@ sealed class Destination {
 
     @Serializable
     data object User : Destination()
+
+    @Serializable
+    @SerialName("Conversation")
+    data object Conversation: Destination()
+
 
 }

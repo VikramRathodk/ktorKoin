@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.devvikram.ktorkoin.navigation.screens.CanvasScreen
+import org.devvikram.ktorkoin.navigation.screens.ConversationScreen
 import org.devvikram.ktorkoin.navigation.screens.HomeScreen
 import org.devvikram.ktorkoin.navigation.screens.UserScreen
 import org.devvikram.ktorkoin.presentation.viewmodels.StateViewmodel
@@ -22,12 +23,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     ) {
         composable<Destination.Home> {
             val viewModel: StateViewmodel = koinViewModel()
-            HomeScreen(modifier = modifier, viewModel = viewModel, navigateToCanvaScreen = {
-                navController.navigate(Destination.CanvasD)
-            },
-                navigateToUserScreen = {
-                    navController.navigate(Destination.User)
-                })
+            HomeScreen(
+                modifier = modifier,
+                navHostController = navController,
+                viewModel = viewModel
+            )
         }
         composable<Destination.CanvasD> {
             CanvasScreen(modifier = modifier)
@@ -35,6 +35,9 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         composable<Destination.User> {
             val viewmodel = koinViewModel<UserViewModel>()
             UserScreen(modifier = modifier,viewmodel)
+        }
+        composable<Destination.Conversation> {
+            ConversationScreen()
         }
     }
 }

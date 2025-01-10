@@ -51,14 +51,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import org.devvikram.ktorkoin.navigation.Destination
 import org.devvikram.ktorkoin.permissions.AndroidLocationPermission
 import org.devvikram.ktorkoin.presentation.viewmodels.StateViewmodel
 import org.devvikram.ktorkoin.presentation.viewmodels.UIState
 
 @Composable
 fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel,
-               navigateToCanvaScreen: () -> Unit = {},
-               navigateToUserScreen: () -> Unit = {}) {
+               navHostController: NavHostController) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var stateList by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -69,6 +70,11 @@ fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
+        Text(text = "Tab to open conversation", modifier = Modifier.clickable {
+            navHostController.navigate(Destination.Conversation)
+        })
+
+
         Text(text = "Home Screen")
         Button(
             onClick = { viewModel.getStates() }
@@ -77,14 +83,14 @@ fun HomeScreen(modifier: Modifier, viewModel: StateViewmodel,
         }
 
         Button(
-            onClick = navigateToUserScreen
+            onClick = { navHostController.navigate(Destination.User) }
         ) {
             Text(text = "Navigate to User Screen")
         }
 
 
         Button(
-            onClick = navigateToCanvaScreen
+            onClick = {navHostController.navigate(Destination.CanvasD)}
         ) {
             Text(text = "Navigate to Canvas")
         }
